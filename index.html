@@ -31,7 +31,76 @@ a{color:var(--cyan)}button,textarea{font:inherit}.shell{width:min(1020px,calc(10
 <footer class="footer"><span><strong>EasyHub</strong> · Intent, resolved.</span><span>مصادر مفتوحة، قرار أوضح. <a href="https://github.com/zopair/EasyHub-" target="_blank" rel="noopener noreferrer">المستودع ↗</a></span></footer>
 </main>
 <script>
-(()=>{const $=id=>document.getElementById(id),form=$('form'),intent=$('intent'),submit=$('submit');let answers={};document.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>{intent.value=b.dataset.example;intent.focus()}));function busy(v){submit.disabled=v;submit.innerHTML=v?'<span>جاري التحليل والبحث…</span><span aria-hidden="true">◌</span>':'<span>حلّل الطلب وابحث</span><span aria-hidden="true">↗</span>'}async function search(){const raw=intent.value.trim();if(!raw)return;busy(true);$('status').className='';$('status').textContent='نحلّل النية ونبحث في GitHub…';$('question-panel').classList.add('hidden');$('results-panel').classList.add('hidden');try{const response=await fetch('/api/intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({intent:raw,answers})});let data;try{data=await response.json()}catch{throw Error('وصل رد غير مفهوم من الخادم. حاول مرة أخرى.')}if(!response.ok)throw Error(data.error||'تعذّر إكمال البحث.');render(data);$('status').textContent=data.count?'اكتمل البحث · '+data.count+' نتيجة':'لم نجد نتائج بهذه الصياغة. جرّب إضافة نوع الأداة أو لغة البرمجة.'}catch(e){$('status').className='error';$('status').textContent=e instanceof TypeError?'تعذّر الوصول إلى واجهة البحث. تحقق من النشر والاتصال ثم أعد المحاولة.':e.message}finally{busy(false)}}function render(data){const q=$('questions');q.replaceChildren();(data.questions||[]).slice(0,2).forEach(item=>{const row=document.createElement('div');row.className='question';const label=document.createElement('span');label.textContent=item.question;const choices=document.createElement('div');choices.className='choices';[['أيوه',true],['لأ',false]].forEach(([txt,val])=>{const b=document.createElement('button');b.type='button';b.className='choice';b.textContent=txt;b.setAttribute('aria-pressed',String(answers[item.id]===val));b.addEventListener('click',()=>{answers[item.id]=val;choices.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true')});choices.appendChild(b)});row.append(label,choices);q.appendChild(row)});$('question-panel').classList.toggle('hidden',!(data.questions||[]).length);$('count').textContent=String(data.count||0)+' نتيجة';$('query').textContent='استعلام GitHub: '+(data.query_used||'');const list=$('results');list.replaceChildren();(data.results||[]).forEach(repo=>{const el=document.createElement('article');el.className='repo';const title=document.createElement('div');title.className='repo-title';const a=document.createElement('a');a.href=repo.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=repo.name||'مستودع GitHub';const score=document.createElement('span');score.className='score';score.textContent='توافق تقديري '+Number(repo.match_score||0)+'%';title.append(a,score);const desc=document.createElement('p');desc.textContent=repo.description||'لا يتوفر وصف لهذا المستودع.';const meta=document.createElement('div');meta.className='meta';[repo.language||'لغة غير محددة',repo.license||'الترخيص غير محدد','★ '+Number(repo.stars||0).toLocaleString('en-US'),repo.updated_at?'تحديث '+repo.updated_at.slice(0,10):''].filter(Boolean).forEach(value=>{const span=document.createElement('span');span.textContent=value;meta.appendChild(span)});el.append(title,desc,meta);list.appendChild(el)});$('results-panel').classList.remove('hidden')}form.addEventListener('submit',e=>{e.preventDefault();answers={};search()});$('refine').addEventListener('click',search)})();
+(()=> {
+ const $=id=>document.getElementById(id),form=$('form'),intent=$('intent'),submit=$('submit');
+ let answers={};
+ const ALLOWED_LICENSES=new Set(['MIT','Apache-2.0','BSD-2-Clause','BSD-3-Clause','ISC','0BSD','Unlicense','CC0-1.0']);
+ const STOP=new Set('a an the and or to for of in on with that this i need want make build create find tool library app script using use please me my small simple what how is are can by from into about عايز عايزة محتاج محتاجة اعمل ابني تطبيق اداة برنامج لل في من على و مع الى عن اريد أريد محتاج أداة تطبيق برنامج عايز اعمل'.split(' '));
+ const TASKS=[
+  [/transcrib|transcription|speech to text|audio to text|تفريغ صوت|تحويل الصوت لنص/i,'speech to text'],
+  [/video|shorts|clip|editing|فيديو|شورت|مونتاج/i,'video shorts'],
+  [/image generation|generate image|image editing|توليد الصور/i,'image generation'],
+  [/automate|automation|workflow|browser agent|أتمتة|تلقائي/i,'automation workflow'],
+  [/chatbot|chat bot|assistant|conversational|شات بوت|مساعد/i,'chatbot'],
+  [/scrape|crawler|web scraping|extract website|سحب بيانات|استخراج بيانات/i,'web scraping'],
+  [/semantic search|vector search|retrieval|search engine|بحث دلالي/i,'semantic search'],
+  [/pdf|document|ocr|extract text|مستندات/i,'document OCR'],
+  [/data analysis|analytics|csv|spreadsheet|تحليل بيانات/i,'data analysis CSV']
+ ];
+ function queryFor(raw){
+  const matches=TASKS.filter(([re])=>re.test(raw)).map(([,q])=>q);
+  const words=raw.toLowerCase().match(/[\p{L}\p{N}+#.-]+/gu)||[];
+  const extra=words.filter(w=>w.length>2&&!STOP.has(w)&&!TASKS.some(([re])=>re.test(w))).slice(0,4);
+  return [...new Set([...matches,...extra])].join(' ').trim()||words.filter(w=>w.length>2&&!STOP.has(w)).slice(0,6).join(' ')||'open source developer tool';
+ }
+ function busy(v){submit.disabled=v;submit.innerHTML=v?'<span>جاري التحليل والبحث…</span><span aria-hidden="true">◌</span>':'<span>حلّل الطلب وابحث</span><span aria-hidden="true">↗</span>'}
+ document.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>{intent.value=b.dataset.example;intent.focus()}));
+ async function search(){
+  const raw=intent.value.trim();if(!raw)return;
+  busy(true);$('status').className='';$('status').textContent='نبحث مباشرة عبر GitHub API…';
+  $('question-panel').classList.add('hidden');$('results-panel').classList.add('hidden');
+  try{
+   const q=queryFor(raw);
+   const url='https://api.github.com/search/repositories?'+new URLSearchParams({q:q+' in:name,description,readme',sort:'updated',order:'desc',per_page:'100'});
+   const response=await fetch(url,{headers:{Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}});
+   let data;try{data=await response.json()}catch{throw Error('تعذّر قراءة رد GitHub. حاول مرة أخرى.')}
+   if(!response.ok){
+    if(response.status===403||response.status===429)throw Error('وصلنا إلى حدّ البحث المجاني في GitHub مؤقتًا. انتظر قليلًا ثم حاول مجددًا.');
+    throw Error(data.message||'تعذّر البحث في GitHub حاليًا.');
+   }
+   const repos=(data.items||[]).filter(repo=>repo.license&&ALLOWED_LICENSES.has(repo.license.spdx_id)).map(repo=>{
+    const text=[repo.full_name,repo.description||'',repo.language||'',...(repo.topics||[])].join(' ').toLowerCase();
+    const terms=q.toLowerCase().split(/\s+/).filter(t=>t.length>2);
+    const found=terms.filter(t=>text.includes(t)).length;
+    const language=(raw.match(/\b(python|javascript|typescript|node|rust|go|java|ruby|php)\b/i)||[])[0];
+    const bonus=language&&repo.language&&repo.language.toLowerCase()===language.toLowerCase()?2:0;
+    return {name:repo.full_name,url:repo.html_url,description:(repo.description||'').slice(0,300),language:repo.language,license:repo.license.spdx_id,stars:repo.stargazers_count||0,updated_at:repo.updated_at,match_score:Math.min(99,Math.round(100*(found+bonus+2)/Math.max(5,terms.length+3)))};
+   }).sort((a,b)=>b.match_score-a.match_score||b.stars-a.stars).slice(0,12);
+   render({query_used:q,results:repos,count:repos.length});
+   $('status').textContent=repos.length?'اكتمل البحث · '+repos.length+' مشروعًا بترخيص مفتوح مسموح':'لم نجد نتائج تحمل ترخيصًا مفتوحًا من القائمة المعتمدة. جرّب وصفًا أو كلمات بحث أخرى.';
+   if(data.incomplete_results)$('status').textContent+=' · قد تكون النتائج غير مكتملة.';
+  }catch(e){$('status').className='error';$('status').textContent=e instanceof TypeError?'تعذّر الاتصال بـ GitHub API. تحقق من الاتصال ثم أعد المحاولة.':e.message}
+  finally{busy(false)}
+ }
+ function render(data){
+  $('count').textContent=String(data.count||0)+' نتيجة';
+  $('query').textContent='استعلام GitHub: '+(data.query_used||'');
+  const list=$('results');list.replaceChildren();
+  (data.results||[]).forEach(repo=>{
+   const el=document.createElement('article');el.className='repo';
+   const title=document.createElement('div');title.className='repo-title';
+   const a=document.createElement('a');a.href=repo.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=repo.name||'مستودع GitHub';
+   const score=document.createElement('span');score.className='score';score.textContent='توافق تقديري '+Number(repo.match_score||0)+'%';title.append(a,score);
+   const desc=document.createElement('p');desc.textContent=repo.description||'لا يتوفر وصف لهذا المستودع.';
+   const meta=document.createElement('div');meta.className='meta';
+   [repo.language||'لغة غير محددة','ترخيص '+repo.license,'★ '+Number(repo.stars||0).toLocaleString('en-US'),repo.updated_at?'تحديث '+repo.updated_at.slice(0,10):''].filter(Boolean).forEach(value=>{const span=document.createElement('span');span.textContent=value;meta.appendChild(span)});
+   el.append(title,desc,meta);list.appendChild(el);
+  });
+  $('results-panel').classList.remove('hidden');
+ }
+ form.addEventListener('submit',e=>{e.preventDefault();search()});
+ $('refine').addEventListener('click',search);
+})();
 </script>
 </body>
 </html>
