@@ -1,20 +1,50 @@
-name: Validate EasyHub
+name: Validate and deploy EasyHub to GitHub Pages
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
-  python-tests:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Validate static site
+        run: |
+          test -s index.html
+          grep -q 'https://api.github.com/search/repositories' index.html
+          grep -q "method:'POST'" index.html && exit 1 || true
+          ! grep -R -n -E 'vercel\.json|api/intent\.py|api\.intent' --exclude-dir=.git --exclude=README.md .
+          echo "Static site checks passed."
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
         with:
-          python-version: "3.11"
-      - name: Compile backend
-        run: python -m py_compile api/intent.py
-      - name: Run unit tests
-        run: python -m unittest discover -s tests -v
+          path: .
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
