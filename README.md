@@ -1,80 +1,75 @@
 # EasyHub
 
-**Describe the outcome. Discover the tool. Get a practical next step.**
+**Intent, resolved.** Describe the outcome you want, search open-source projects, and get a useful shortlist.
 
-EasyHub is a lightweight, serverless-friendly intent resolution prototype. It translates plain-language requests into a structured intent, searches public GitHub repositories for implementation candidates, asks at most two optional yes/no questions when useful, and presents source links with transparent matching signals.
+EasyHub is a lean intent-to-tool discovery MVP: an Arabic-first single-step landing page, a Python serverless endpoint, GitHub repository search, lightweight lexical ranking, optional yes/no refinement, and safety-conscious results.
 
-> **Status:** MVP scaffold. Search and ranking are functional; automatic execution of third-party code is intentionally disabled. Candidates must be reviewed before running.
+## Live deployment
 
-## Product principles
+- Production: https://easyhub-snowy.vercel.app
+- Source: https://github.com/zopair/EasyHub-
+- API: `POST /api/intent`
 
-- **Intent first:** rank by capabilities and implementation clues, not repository stars alone.
-- **Short flow:** request → optional clarification → ranked candidates.
-- **Safe by default:** no arbitrary code execution, no embedded credentials, no secrets in browser code.
-- **Lean runtime:** Python standard library backend and static HTML/CSS/JavaScript frontend.
-- **Honest results:** candidates are suggestions, not guarantees of compatibility or license approval.
+The latest frontend is a dark cyberpunk/glassmorphism design with restrained animated star layers, glow accents, responsive layout, and reduced-motion support.
 
-## Run locally
+## Features
 
-Requires Python 3.11+.
+- Arabic RTL, mobile-first UI with one request box and sample prompts.
+- Plain-language intent parsing for common task categories, runtimes, and constraints.
+- Live GitHub repository search; ranked by lexical overlap, runtime fit, license metadata, and update recency. Stars are not the primary ranking signal.
+- Up to two optional yes/no refinement questions.
+- Shows repository URL, description, language, SPDX license if GitHub provides it, stars, update date, and an approximate match score.
+- Bounded in-memory TTL cache and a best-effort per-process request throttle.
+- No third-party Python runtime dependencies, no arbitrary repository code execution, and no secrets committed.
 
-```bash
-python -m http.server 8080
-```
+## Deploy and operate
 
-The static page is available at http://localhost:8080. The API requires a serverless Python runtime and is not provided by Python's static file server. This repository is structured for Vercel Functions via `api/intent.py`.
+This project uses Vercel's Python Functions runtime via `api/intent.py`. `pyproject.toml` declares the Python entrypoint.
 
-## Deploy to Vercel
+1. Import `zopair/EasyHub-` into Vercel or connect it from the Vercel project settings.
+2. Set the project root to the repository root and keep the Python framework/runtime settings.
+3. Optionally add `GITHUB_TOKEN` as a server-side environment variable to raise GitHub API rate limits. Never expose it to browser code.
+4. Deploy from the production branch `main`.
 
-1. Import this repository into Vercel.
-2. Keep the root directory at the repository root.
-3. Optionally configure `GITHUB_TOKEN` as a server-side environment variable to improve GitHub API rate limits. Never expose it through a browser-visible variable.
-4. Deploy. The static page is served at `/` and the API at `/api/intent`.
+**Git integration note:** The current Vercel API integration cannot see this GitHub repository (Git namespace lookup returns an authentication error and linking returns `repo_not_found`). Until the Git provider authorization is repaired in Vercel, deployments can be created from source files directly, but automatic deployment on every push is not confirmed. Reconnect/authorize GitHub for the correct Vercel team, then link `zopair/EasyHub-` to the `easyhub` project in Vercel settings.
 
-No third-party Python packages are required. Unauthenticated GitHub requests have stricter rate limits.
+The currently configured Vercel production domain is `easyhub-snowy.vercel.app`. No custom domain was supplied in the request, so no domain registration or DNS changes were made.
 
-## API
+## API contract
 
 `POST /api/intent`
 
 ```json
 {
-  "intent": "I need a small Python tool to transcribe audio files",
+  "intent": "I need a lightweight Python tool to transcribe audio to text",
   "answers": {}
 }
 ```
 
-The response includes a normalized intent, optional yes/no questions, ranked public repository candidates, and a safety note. Input is limited to 1,000 characters.
+The intent field is required and limited to 1,000 characters. The handler returns a normalized intent, optional questions, a GitHub query, ranked results, and a safety notice. Oversized/malformed requests and rate-limit/API failures return explicit errors.
 
-The backend uses a bounded in-memory TTL cache and a per-process request throttle. Serverless instances may have independent caches, so this is best-effort optimization, not a global rate limiter.
+## Matching and limitations
 
-## Matching approach
+The MVP uses inexpensive lexical matching and GitHub's repository search API. It does not yet deeply inspect every candidate's source code, execute agents, install dependencies, or prove license compatibility. Match percentages are heuristic signals, not calibrated probabilities.
 
-1. Normalize the request and detect likely task, language/runtime, and constraints.
-2. Build a concise GitHub repository-search query from task-related terms.
-3. Rank results using keyword overlap, runtime fit, and available license metadata. Stars are not the primary ranking signal.
-4. Ask at most two optional binary questions when the request remains ambiguous.
-5. Return source links, descriptions, language, available SPDX license metadata, and update date.
+The cache and throttle are per serverless instance, not global. Public production use should add shared edge/WAF rate limiting if traffic requires it. Unauthenticated GitHub search is subject to stricter rate limits.
 
-This MVP uses inexpensive lexical matching, not a hosted embedding model. A semantic index can be added later if measured quality justifies the cost. The current GitHub repository search is a useful first-pass matcher, not a guarantee of deep source-code understanding.
+## Local static preview
 
-## Security and responsible use
+Requires Python 3.11+:
 
-- Never commit API keys, access tokens, or user secrets.
-- Treat repository descriptions and contents as untrusted data.
-- Do not automatically install or execute discovered code.
-- Review the actual license file and dependency licenses before incorporating code. An SPDX field alone is not a complete legal review.
-- Apply deployment-level abuse protection for public production use; the in-memory throttle is not a substitute for a shared edge/WAF limit.
-- Results may be incomplete due to GitHub indexing, API rate limits, or outages.
+```bash
+python -m http.server 8080
+```
+
+This serves the landing page only. The API route requires a serverless runtime; the static preview alone cannot execute `/api/intent`.
 
 ## Tests
-
-Run the standard-library tests from the repository root:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-## License
+## Security and license
 
-The EasyHub scaffold is released under the MIT License. This applies to this repository's original code only; it does not relicense third-party repositories returned by search.
+Treat repository descriptions and discovered code as untrusted. Review the actual project license and dependency licenses before integration. EasyHub never automatically executes results. The MIT license in this repository covers original EasyHub code only and does not relicense third-party repositories.
