@@ -36,7 +36,7 @@ a{color:var(--cyan)}button,textarea{font:inherit}.shell{width:min(1020px,calc(10
  let answers={};
  const ALLOWED_LICENSES=new Set(['MIT','Apache-2.0','BSD-2-Clause','BSD-3-Clause','ISC','0BSD','Unlicense','CC0-1.0']);
  const STOP=new Set('a an the and or to for of in on with that this i need want make build create find tool library app script using use please me my small simple what how is are can by from into about عايز عايزة محتاج محتاجة اعمل ابني تطبيق اداة برنامج لل في من على و مع الى عن اريد أريد محتاج أداة تطبيق برنامج عايز اعمل'.split(' '));
- const TASKS=[
+ const TASKS=[\n  [/dataset|data set|training data|labeled data|مجموعة بيانات|بيانات تدريب/i,'dataset tools'],\n  [/python|\\.py\\b/i,'python tools'],\n  [/transcribe|transcription|audio|speech to text|تفريغ صوت|تحويل الصوت لنص/i,'audio transcription'],
   [/transcrib|transcription|speech to text|audio to text|تفريغ صوت|تحويل الصوت لنص/i,'speech to text'],
   [/video|shorts|clip|editing|فيديو|شورت|مونتاج/i,'video shorts'],
   [/image generation|generate image|image editing|توليد الصور/i,'image generation'],
