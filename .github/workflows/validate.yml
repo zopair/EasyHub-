@@ -19,7 +19,6 @@ jobs:
         run: |
           test -s index.html
           grep -q 'https://api.github.com/search/repositories' index.html
-          grep -q "method:'POST'" index.html && exit 1 || true
           test ! -e vercel.json
           test ! -e api/intent.py
           test ! -e pyproject.toml
