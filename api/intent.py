@@ -98,7 +98,6 @@ class handler(BaseHTTPRequestHandler):
   self.send_response(status); self.send_header("Content-Type","application/json; charset=utf-8"); self.send_header("Cache-Control","no-store"); self.send_header("X-Content-Type-Options","nosniff"); self.send_header("Content-Length",str(len(raw))); self.end_headers(); self.wfile.write(raw)
  def do_GET(self):
   # Friendly health/help response for browsers and uptime checks; searches use POST.
-  self.send_header if False else None
   self.send_json(200, {
    "service":"EasyHub Intent API",
    "status":"ready",
