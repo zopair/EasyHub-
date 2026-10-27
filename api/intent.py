@@ -67,12 +67,16 @@ def handle_intent(body,client="unknown"):
  raw=body.get("intent","")
  if not isinstance(raw,str) or not raw.strip(): return 400,{"error":"اكتب وصفًا واضحًا لما تريد بناءه أو العثور عليه."}
  if len(raw)>MAX_INTENT: return 413,{"error":"الطلب طويل جدًا. الحد الأقصى 1000 حرف."}
- if limited(client): return 429,{"error":"طلبات كثيرة خلال وقت قصير. انتظر دقيقة ثم حاول مجددًا."}
  answers=body.get("answers") if isinstance(body.get("answers"),dict) else {}
  p=parse_intent(raw,answers); query=search_query(p)
  key=json.dumps({"q":query,"a":answers},sort_keys=True,ensure_ascii=False)
  entry=_cache.get(key)
  if entry and entry[0]>time.time(): return 200,{**entry[1],"cached":True}
+ if limited(client): return 429,{"error":"طلبات كثيرة خلال وقت قصير. انتظر دقيقة ثم حاول مجددًا."}
+ def stale_result(message):
+  if entry and isinstance(entry[1],dict) and entry[1].get("results") is not None:
+   return 200,{**entry[1],"cached":True,"stale":True,"notice":"تعذّر تحديث البحث الحي؛ عُرضت نتائج مخزنة مؤقتًا. "+message}
+  return None
  try:
   results=rank(github_search(query),p)
   out={"intent":p,"questions":questions(p),"query_used":query,"results":results,"count":len(results),"cached":False,"notice":"النتائج اقتراحات أولية. راجع الترخيص والاعتماديات والأمان قبل تشغيل أي كود."}
@@ -80,9 +84,13 @@ def handle_intent(body,client="unknown"):
   _cache[key]=(time.time()+CACHE_TTL,out)
   return 200,out
  except urllib.error.HTTPError as e:
+  fallback=stale_result("تحقق من اتصال GitHub وحدود الطلبات.")
+  if fallback: return fallback
   if e.code in (403,429): return 503,{"error":"حدّ GitHub API وصل مؤقتًا. أضف GITHUB_TOKEN كمتغير بيئة على الخادم لرفع الحد."}
   return 502,{"error":"تعذّر إكمال البحث عبر GitHub حاليًا."}
  except (urllib.error.URLError,TimeoutError,json.JSONDecodeError):
+  fallback=stale_result("سيتم إعادة المحاولة عند الطلب التالي.")
+  if fallback: return fallback
   return 502,{"error":"تعذّر الاتصال بخدمة البحث. حاول مرة أخرى لاحقًا."}
 class handler(BaseHTTPRequestHandler):
  def send_json(self,status,data):
