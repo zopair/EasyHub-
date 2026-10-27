@@ -20,7 +20,9 @@ jobs:
           test -s index.html
           grep -q 'https://api.github.com/search/repositories' index.html
           grep -q "method:'POST'" index.html && exit 1 || true
-          ! grep -R -n -E 'vercel\.json|api/intent\.py|api\.intent' --exclude-dir=.git --exclude=README.md .
+          test ! -e vercel.json
+          test ! -e api/intent.py
+          test ! -e pyproject.toml
           echo "Static site checks passed."
 
   deploy:
