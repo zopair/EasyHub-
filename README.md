@@ -1,3 +1,11 @@
+<p align="center">
+  <a href="https://drive.google.com/file/d/1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb/view" aria-label="Watch the 10-second EasyHub product demo">
+    <img src="https://drive.google.com/thumbnail?id=1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb&sz=w1600" alt="EasyHub in action — watch the 10-second product demo" width="100%">
+  </a>
+  <br>
+  <strong><a href="https://drive.google.com/file/d/1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb/view">▶ Watch the 10-second product demo</a></strong>
+</p>
+
 # EasyHub — Intent, resolved.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -10,13 +18,7 @@
 
 ## Product demo
 
-Watch the [EasyHub product demonstration](https://drive.google.com/file/d/1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb/view).
-
-> If the preview below does not load, use the video link above. The video must be shared so intended reviewers can view it.
-
-<a href="https://drive.google.com/file/d/1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb/view">
-  <img src="https://drive.google.com/thumbnail?id=1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb&sz=w1200" alt="Watch the EasyHub product demonstration" width="800">
-</a>
+The banner at the top links directly to the 10-second demonstration. If the thumbnail is unavailable, use the direct video link: [Watch on Google Drive](https://drive.google.com/file/d/1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb/view). Ensure the Drive file is shared with the intended reviewers.
 
 ## Why EasyHub?
 
