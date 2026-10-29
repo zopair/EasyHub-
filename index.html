@@ -63,8 +63,9 @@ a{color:var(--cyan)}button,textarea{font:inherit}.shell{width:min(1020px,calc(10
  function cacheGet(key){
   const now=Date.now(),memory=memoryCache.get(key);
   if(memory&&now-memory.savedAt<CACHE_TTL)return memory.value;
-  for(const store of [window.localStorage,window.sessionStorage]){
+  for(const name of ['localStorage','sessionStorage']){
    try{
+    const store=window[name];if(!store)continue;
     const raw=store.getItem(CACHE_PREFIX+key);if(!raw)continue;
     const item=JSON.parse(raw);
     if(item&&item.savedAt&&now-item.savedAt<CACHE_TTL&&item.value){memoryCache.set(key,item);return item.value}
@@ -77,8 +78,9 @@ a{color:var(--cyan)}button,textarea{font:inherit}.shell{width:min(1020px,calc(10
   const item={savedAt:Date.now(),value};memoryCache.set(key,item);
   while(memoryCache.size>CACHE_MAX)memoryCache.delete(memoryCache.keys().next().value);
   const storageKey=CACHE_PREFIX+key,serialized=JSON.stringify(item);
-  for(const store of [window.localStorage,window.sessionStorage]){
+  for(const name of ['localStorage','sessionStorage']){
    try{
+    const store=window[name];if(!store)continue;
     const keys=[];for(let i=0;i<store.length;i++){const k=store.key(i);if(k&&k.startsWith(CACHE_PREFIX))keys.push(k)}
     keys.sort((a,b)=>{try{return JSON.parse(store.getItem(a)).savedAt-JSON.parse(store.getItem(b)).savedAt}catch(_){return -1}});
     while(keys.length>=CACHE_MAX)store.removeItem(keys.shift());
