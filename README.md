@@ -30,8 +30,8 @@ Finding a useful open-source project can be harder than writing the first line o
 - **GitHub-backed results:** queries the GitHub REST API directly from the browser.
 - **Lightweight relevance ranking:** uses available signals such as keyword relevance, language, and stars to order results.
 - **Bilingual intent resolution:** describe a goal in Arabic or English; lightweight intent rules turn it into a GitHub repository search.
-- **Visual result filters:** narrow the returned shortlist by allowlisted license or repository topic without making another API request.
-- **License-aware trust indicators:** show GitHub-reported license metadata beside each result and provide a clear reminder to verify the actual license before reuse.
+- **Visual result filters:** narrow the returned shortlist (up to 12 repositories) by allowlisted license or repository topic without making another API request.
+- **License-aware trust indicators:** show GitHub-reported license metadata beside each result, visually mark entries whose metadata matches the app's allowlist, and remind users to verify the actual license before reuse. This is not an independent legal or license audit.
 - **Quick repository previews:** open a lightweight, accessible dialog with the available description, language, license, stars, update date, relevance estimate, and topics. Preview uses search-result metadata already in memory; it does not fetch or execute repository code.
 - **Arabic and English interface:** language switching covers the main interface, result filters, and repository preview.
 - **Local query caching:** successful search results are cached in the browser for 30 minutes, with bounded storage and in-flight request deduplication to reduce repeated GitHub API calls.
