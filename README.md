@@ -29,9 +29,14 @@ Finding a useful open-source project can be harder than writing the first line o
 - **Intent-oriented discovery:** enter a goal or describe the kind of project you need.
 - **GitHub-backed results:** queries the GitHub REST API directly from the browser.
 - **Lightweight relevance ranking:** uses available signals such as keyword relevance, language, and stars to order results.
-- **License-aware filtering:** can surface repositories whose GitHub metadata reports a license from the app's allowlist: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Unlicense, and CC0-1.0.
-- **Arabic and English interface:** language switching is available in the interface.
-- **Static and transparent:** no project backend or database is required, and repository code is not downloaded or executed by EasyHub.
+- **Bilingual intent resolution:** describe a goal in Arabic or English; lightweight intent rules turn it into a GitHub repository search.
+- **Visual result filters:** narrow the returned shortlist by allowlisted license or repository topic without making another API request.
+- **License-aware trust indicators:** show GitHub-reported license metadata beside each result and provide a clear reminder to verify the actual license before reuse.
+- **Quick repository previews:** open a lightweight, accessible dialog with the available description, language, license, stars, update date, relevance estimate, and topics. Preview uses search-result metadata already in memory; it does not fetch or execute repository code.
+- **Arabic and English interface:** language switching covers the main interface, result filters, and repository preview.
+- **Local query caching:** successful search results are cached in the browser for 30 minutes, with bounded storage and in-flight request deduplication to reduce repeated GitHub API calls.
+- **Zero EasyHub server:** no project backend or database is required. Search requests go directly from the browser to GitHub, and recent query/result metadata may be stored in that browser's local or session storage for the cache lifetime. EasyHub does not receive the search through its own server.
+- **No automatic code execution:** repositories are linked for human review; EasyHub does not download, install, or run their code.
 
 ## How it works
 
@@ -42,13 +47,16 @@ User describes a goal
 EasyHub interprets the query and builds search terms
         |
         v
-Browser requests results from the GitHub REST API
+Browser checks its local cache, then requests GitHub REST API if needed
         |
         v
-Results are ranked and displayed for review
+Results are ranked and allowlisted license metadata is retained
         |
         v
-User inspects the repository, code, dependencies, and license
+User filters the shortlist and opens metadata-only previews
+        |
+        v
+User inspects the repository, code, dependencies, and actual license
 ```
 
 EasyHub is a discovery aid, not a code execution environment, security scanner, compatibility guarantee, or legal opinion.
@@ -59,6 +67,9 @@ EasyHub is a discovery aid, not a code execution environment, security scanner, 
 | --- | --- |
 | Application | Single-page static app in `index.html` (HTML, CSS, JavaScript) |
 | Search data | GitHub REST API, called from the browser |
+| Query cache | Browser memory plus bounded local/session storage, 30-minute TTL |
+| Result filters | Client-side license and topic filters on the returned shortlist |
+| Repository preview | Client-side metadata dialog; no additional request or code execution |
 | Hosting | GitHub Pages |
 | CI and deployment | GitHub Actions workflow in `.github/workflows/validate.yml` |
 | Server / database | None |
@@ -110,7 +121,7 @@ License filtering relies on metadata returned by GitHub and the app's configured
 
 ## Limitations
 
-- **Unauthenticated API limits:** browser requests use the public GitHub API without a private server token. Rate limits and transient API failures can prevent or delay searches.
+- **Unauthenticated API limits:** browser requests use the public GitHub API without a private server token. Local caching reduces repeated identical searches but cannot eliminate rate limits for new queries or after cache expiry.
 - **No backend:** GitHub Pages serves static files; it does not run Python or host an application API.
 - **Heuristic ranking:** ranking is a convenience, not a benchmark or a probability score.
 - **Third-party content:** repository names, descriptions, topics, and links come from GitHub and should be treated as untrusted external data.
@@ -149,7 +160,7 @@ This is a documentation-oriented structure around the existing single-file app, 
 
 ## Security and privacy
 
-EasyHub has no application backend or account system. Search requests go from the user's browser to GitHub. Do not put secrets in client-side code, and avoid storing query content unless a clearly explained feature requires it. See [SECURITY.md](SECURITY.md) and [docs/PRIVACY.md](docs/PRIVACY.md).
+EasyHub has no application backend or account system. Search requests go directly from the user's browser to GitHub; EasyHub does not proxy them through its own server. To reduce repeated API calls, the app temporarily caches search queries and result metadata in browser memory and local/session storage for up to 30 minutes, with a bounded cache. This data remains in the user's browser and can be cleared through browser site-data settings. Do not put secrets in client-side code. See [SECURITY.md](SECURITY.md) and [docs/PRIVACY.md](docs/PRIVACY.md).
 
 ## Contributing
 
