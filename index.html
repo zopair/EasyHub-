@@ -63,14 +63,14 @@ a{color:var(--cyan)}button,textarea{font:inherit}.shell{width:min(1020px,calc(10
  function cacheGet(key){
   const now=Date.now(),memory=memoryCache.get(key);
   if(memory&&now-memory.savedAt<CACHE_TTL)return memory.value;
-  try{
-   for(const store of [window.localStorage,window.sessionStorage]){
+  for(const store of [window.localStorage,window.sessionStorage]){
+   try{
     const raw=store.getItem(CACHE_PREFIX+key);if(!raw)continue;
     const item=JSON.parse(raw);
     if(item&&item.savedAt&&now-item.savedAt<CACHE_TTL&&item.value){memoryCache.set(key,item);return item.value}
     store.removeItem(CACHE_PREFIX+key);
-   }
-  }catch(_){}
+   }catch(_){}
+  }
   return null;
  }
  function cacheSet(key,value){
