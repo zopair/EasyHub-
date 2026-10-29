@@ -134,10 +134,10 @@ a{color:var(--cyan)}button,textarea{font:inherit}.shell{width:min(1020px,calc(10
   if(!currentData)return;
   const all=currentData.results||[],license=$('license-filter').value,topic=$('topic-filter').value.trim().toLowerCase();
   const filtered=all.filter(repo=>(license==='all'||repo.license===license)&&(!topic||(repo.topics||[]).some(t=>String(t).toLowerCase().includes(topic))));
-  $('count').textContent=String(filtered.length)+' / '+String(all.length)+' نتيجة';
-  $('filter-summary').textContent=filtered.length===all.length?'Showing all matching repositories':'Filters matched '+filtered.length+' of '+all.length+' repositories';
+  $('count').textContent=String(filtered.length)+' / '+String(all.length)+' '+(window.easyHubLangText?window.easyHubLangText(31):'results');
+  $('filter-summary').textContent=filtered.length===all.length?(window.easyHubLangText?window.easyHubLangText(37):'Showing all matching repositories'):(window.easyHubLangText?window.easyHubLangText(38).replace('{shown}',filtered.length).replace('{total}',all.length):'Filters matched '+filtered.length+' of '+all.length+' repositories');
   const list=$('results');list.replaceChildren();
-  if(!filtered.length){const empty=document.createElement('p');empty.className='empty-filter';empty.textContent='No repositories match these filters. Try another topic or reset filters.';list.appendChild(empty)}
+  if(!filtered.length){const empty=document.createElement('p');empty.className='empty-filter';empty.textContent=window.easyHubLangText?window.easyHubLangText(39):'No repositories match these filters. Try another topic or reset filters.';list.appendChild(empty)}
   filtered.forEach(repo=>{
    const el=document.createElement('article');el.className='repo';
    const title=document.createElement('div');title.className='repo-title';
@@ -149,7 +149,7 @@ a{color:var(--cyan)}button,textarea{font:inherit}.shell{width:min(1020px,calc(10
    const tags=document.createElement('div');tags.className='topic-tags';
    (repo.topics||[]).slice(0,5).forEach(topicName=>{const tag=document.createElement('span');tag.className='topic-tag';tag.textContent=topicName;tags.appendChild(tag)});
    const actions=document.createElement('div');actions.className='repo-actions';
-   const preview=document.createElement('button');preview.type='button';preview.className='preview-btn';preview.textContent='Quick preview';preview.addEventListener('click',()=>openPreview(repo));
+   const preview=document.createElement('button');preview.type='button';preview.className='preview-btn';preview.textContent=window.easyHubLangText?window.easyHubLangText(40):'Quick preview';preview.addEventListener('click',()=>openPreview(repo));
    actions.appendChild(preview);
    el.append(title,desc,meta);if(tags.childElementCount)el.appendChild(tags);el.appendChild(actions);list.appendChild(el);
   });
@@ -159,14 +159,14 @@ a{color:var(--cyan)}button,textarea{font:inherit}.shell{width:min(1020px,calc(10
  function render(data){
   currentData=data;
   const select=$('license-filter');
-  if(select.options.length===1){[...ALLOWED_LICENSES].sort().forEach(license=>{const option=document.createElement('option');option.value=license;option.textContent=license;select.appendChild(option)})}
+  if(select.options.length===1){[...ALLOWED_LICENSES].sort().forEach(license=>{const option=document.createElement('option');option.value=license;option.textContent=license;select.appendChild(option)})} select.options[0].textContent=window.easyHubLangText?window.easyHubLangText(33):'All allowed licenses';
   drawResults();
  }
  function openPreview(repo){
-  $('dialog-title').textContent=repo.name||'Repository preview';
-  $('dialog-description').textContent=repo.description||'No description provided by GitHub.';
+  $('dialog-title').textContent=repo.name||(window.easyHubLangText?window.easyHubLangText(47):'Repository preview');
+  $('dialog-description').textContent=repo.description||(window.easyHubLangText?window.easyHubLangText(48):'No description provided by GitHub.');
   const meta=$('dialog-meta');meta.replaceChildren();
-  [['Language',repo.language||'Not specified'],['License',repo.license||'Unknown'],['Stars',Number(repo.stars||0).toLocaleString('en-US')],['Estimated match',Number(repo.match_score||0)+'%'],['Updated',repo.updated_at?repo.updated_at.slice(0,10):'Unknown']].forEach(([label,value])=>{const span=document.createElement('span');span.textContent=label+': '+value;meta.appendChild(span)});
+  [[window.easyHubLangText?window.easyHubLangText(41):'Language',repo.language||(window.easyHubLangText?window.easyHubLangText(42):'Not specified')],[window.easyHubLangText?window.easyHubLangText(43):'License',repo.license||'Unknown'],[window.easyHubLangText?window.easyHubLangText(44):'Stars',Number(repo.stars||0).toLocaleString('en-US')],[window.easyHubLangText?window.easyHubLangText(45):'Estimated match',Number(repo.match_score||0)+'%'],[window.easyHubLangText?window.easyHubLangText(46):'Updated',repo.updated_at?repo.updated_at.slice(0,10):'Unknown']].forEach(([label,value])=>{const span=document.createElement('span');span.textContent=label+': '+value;meta.appendChild(span)});
   const topics=$('dialog-topics');topics.replaceChildren();
   (repo.topics||[]).forEach(name=>{const tag=document.createElement('span');tag.className='topic-tag';tag.textContent=name;topics.appendChild(tag)});
   $('dialog-repo-link').href=repo.url||'#';
@@ -187,14 +187,15 @@ a{color:var(--cyan)}button,textarea{font:inherit}.shell{width:min(1020px,calc(10
 <script>
 (()=> {
 const D={
-ar:["محرك البحث جاهز","إصدار تجريبي","من الفكرة إلى","الأداة المناسبة.","اكتب ما تريد تحقيقه بلغتك الطبيعية. نحلّل احتياجك ونبحث في مشروعات GitHub لنوصلك إلى أدوات مفتوحة المصدر تستحق التجربة.","ما الذي تريد بناءه أو أتمتته؟","مثال: أريد أداة Python خفيفة لتحويل ملفات الصوت إلى نص، بدون خادم دائم...","↳ وصف واحد يكفي · حتى 1000 حرف","حلّل الطلب وابحث","جرّب مثالًا:","تحويل الصوت إلى نص","فيديوهات قصيرة","بحث دلالي","أداة Python خفيفة لتفريغ ملفات الصوت إلى نص","أريد إنشاء فيديوهات قصيرة تلقائيًا من نص وصور","أداة بحث دلالي مفتوحة المصدر وخفيفة","بحث مباشر في GitHub","بدون مكتبات واجهة ثقيلة","لا نشغّل كودًا تلقائيًا","تخصيص البحث","إجاباتك اختيارية، وتساعد في تضييق النتائج.","تحديث النتائج","المشروعات المرشّحة","نتائج التوافق تقديرية وليست ضمانًا للجودة. راجع الترخيص الفعلي والاعتماديات والأمان قبل دمج أي كود في مشروعك.","مصادر مفتوحة، قرار أوضح.","المستودع","نبحث مباشرة عبر GitHub API…","توافق تقديري ","ترخيص ","تحديث ","لا يتوفر وصف لهذا المستودع.","نتيجة","استعلام GitHub: "],
-en:["Search engine ready","Beta","From idea to","the right tool.","Describe what you want in your own words. EasyHub searches GitHub for open-source projects worth exploring.","What do you want to build or automate?","Example: A lightweight Python tool to transcribe audio files to text, without a permanent server…","↳ One description is enough · up to 1,000 characters","Analyze & search","Try an example:","Audio transcription","Short videos","Semantic search","A lightweight Python tool to transcribe audio files to text","Automatically create short videos from text and images","A lightweight open-source semantic search tool","Live GitHub search","No heavy UI libraries","We never run code automatically","Refine your search","Optional answers can help narrow the results.","Update results","Suggested projects","Match scores are estimates, not quality guarantees. Review the actual license, dependencies, and security before integrating code.","Open source. Clearer decisions.","Repository","Searching GitHub API directly…","Estimated match ","License ","Updated ","No description provided."," results","GitHub query: "]
+ar:["محرك البحث جاهز","إصدار تجريبي","من الفكرة إلى","الأداة المناسبة.","اكتب ما تريد تحقيقه بلغتك الطبيعية. نحلّل احتياجك ونبحث في مشروعات GitHub لنوصلك إلى أدوات مفتوحة المصدر تستحق التجربة.","ما الذي تريد بناءه أو أتمتته؟","مثال: أريد أداة Python خفيفة لتحويل ملفات الصوت إلى نص، بدون خادم دائم...","↳ وصف واحد يكفي · حتى 1000 حرف","حلّل الطلب وابحث","جرّب مثالًا:","تحويل الصوت إلى نص","فيديوهات قصيرة","بحث دلالي","أداة Python خفيفة لتفريغ ملفات الصوت إلى نص","أريد إنشاء فيديوهات قصيرة تلقائيًا من نص وصور","أداة بحث دلالي مفتوحة المصدر وخفيفة","بحث مباشر في GitHub","بدون مكتبات واجهة ثقيلة","لا نشغّل كودًا تلقائيًا","تخصيص البحث","إجاباتك اختيارية، وتساعد في تضييق النتائج.","تحديث النتائج","المشروعات المرشّحة","نتائج التوافق تقديرية وليست ضمانًا للجودة. راجع الترخيص الفعلي والاعتماديات والأمان قبل دمج أي كود في مشروعك.","مصادر مفتوحة، قرار أوضح.","المستودع","نبحث مباشرة عبر GitHub API…","توافق تقديري ","ترخيص ","تحديث ","لا يتوفر وصف لهذا المستودع.","نتيجة","استعلام GitHub: ","تصفية حسب الترخيص","تصفية حسب الموضوع (مثل automation)","تصفية حسب الموضوع (مثال: automation)","إعادة ضبط الفلاتر","عرض كل النتائج المطابقة","طابقت الفلاتر {shown} من {total} مستودعًا","لا توجد مستودعات تطابق هذه الفلاتر. جرّب موضوعًا آخر أو أعد ضبط الفلاتر.","معاينة سريعة","اللغة","غير محددة","الترخيص","النجوم","التوافق التقديري","آخر تحديث","معاينة المستودع","لا يتوفر وصف من GitHub.","إغلاق ✕","فتح المستودع ↗","مراجعة الترخيص على GitHub ↗"],
+en:["Search engine ready","Beta","From idea to","the right tool.","Describe what you want in your own words. EasyHub searches GitHub for open-source projects worth exploring.","What do you want to build or automate?","Example: A lightweight Python tool to transcribe audio files to text, without a permanent server…","↳ One description is enough · up to 1,000 characters","Analyze & search","Try an example:","Audio transcription","Short videos","Semantic search","A lightweight Python tool to transcribe audio files to text","Automatically create short videos from text and images","A lightweight open-source semantic search tool","Live GitHub search","No heavy UI libraries","We never run code automatically","Refine your search","Optional answers can help narrow the results.","Update results","Suggested projects","Match scores are estimates, not quality guarantees. Review the actual license, dependencies, and security before integrating code.","Open source. Clearer decisions.","Repository","Searching GitHub API directly…","Estimated match ","License ","Updated ","No description provided."," results","GitHub query: ","Filter by license","Filter by topic (e.g. automation)","Filter by topic (e.g. automation)","Reset filters","Showing all matching repositories","Filters matched {shown} of {total} repositories","No repositories match these filters. Try another topic or reset filters.","Quick preview","Language","Not specified","License","Stars","Estimated match","Updated","Repository preview","No description provided by GitHub.","Close ✕","Open repository ↗","Review license on GitHub ↗"]
 };
 let lang="ar";try{lang=localStorage.getItem("easyhub-lang")==="en"?"en":"ar"}catch(e){}
 const t=i=>D[lang][i];
 function apply(){
 const en=lang==="en";document.documentElement.lang=lang;document.documentElement.dir=en?"ltr":"rtl";
 document.getElementById("lang-toggle").textContent=en?"AR":"EN";document.getElementById("ready-label").textContent=t(0);
+document.querySelector("#license-filter").previousElementSibling.textContent=t(33);document.querySelector("#topic-filter").previousElementSibling.textContent=t(34);document.getElementById("topic-filter").placeholder=t(35);document.getElementById("filter-reset").textContent=t(36);document.getElementById("dialog-close").textContent=t(49);document.getElementById("dialog-repo-link").textContent=t(50);document.getElementById("dialog-license-link").textContent=t(51);
 document.querySelector(".eyebrow").innerHTML="<b>✦</b> INTENT RESOLUTION ENGINE <span>·</span> "+t(1);
 document.querySelector("h1").innerHTML=t(2)+"<br><span class='gradient'>"+t(3)+"</span>";
 document.querySelector(".intro").textContent=t(4);document.querySelector(".prompt-label span:last-child").textContent=t(5);
