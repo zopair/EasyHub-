@@ -1,3 +1,26 @@
+# EasyHub — Human-led discovery for open source.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Validate and Deploy](https://github.com/zopair/EasyHub-/actions/workflows/validate.yml/badge.svg)](https://github.com/zopair/EasyHub-/actions/workflows/validate.yml)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://zopair.github.io/EasyHub-/)
+
+**Find open-source building blocks without handing control to an automated agent.** EasyHub helps people turn a goal into a GitHub repository search, review relevant projects, and make their own informed decisions.
+
+[Open the live app](https://zopair.github.io/EasyHub-/) · [Browse the source](https://github.com/zopair/EasyHub-) · [Report a bug](https://github.com/zopair/EasyHub-/issues/new)
+
+> **A small, user-controlled discovery tool.** EasyHub does not install, execute, deploy, or modify repositories. It presents GitHub search results and lightweight metadata so that people remain responsible for evaluation and next steps.
+
+## Principles
+
+- **Human agency:** discovery supports a person’s research and decision-making; it is not an autonomous coding or execution agent.
+- **Privacy by architecture:** there is no EasyHub application backend, account system, or project database. Search requests are sent directly from the browser to GitHub.
+- **Digital sovereignty:** the application is open source, statically hosted, and usable without an EasyHub-operated service. Users can inspect, fork, host, and adapt the code.
+- **Minimal infrastructure:** the application is a single static `index.html` using browser-native HTML, CSS, and JavaScript. No application server, build pipeline, framework, or package installation is required.
+- **Transparent limits:** ranking is heuristic; GitHub metadata and license labels are not independent quality, security, or legal assessments.
+- **No secret collection:** no GitHub personal access token or private credential is embedded in the client. Browser-delivered code is public and must never contain secrets.
+
+## Product demo
+
 <p align="center">
   <a href="https://drive.google.com/file/d/1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb/view" aria-label="Watch the 10-second EasyHub product demo">
     <img src="https://drive.google.com/thumbnail?id=1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb&sz=w1600" alt="EasyHub in action — watch the 10-second product demo" width="100%">
@@ -6,23 +29,11 @@
   <strong><a href="https://drive.google.com/file/d/1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb/view">▶ Watch the 10-second product demo</a></strong>
 </p>
 
-# EasyHub — Intent, resolved.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Validate and Deploy](https://github.com/zopair/EasyHub-/actions/workflows/validate.yml/badge.svg)](https://github.com/zopair/EasyHub-/actions/workflows/validate.yml)
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://zopair.github.io/EasyHub-/)
-
-**Turn a goal into a GitHub project search.** EasyHub helps people discover potentially relevant open-source repositories by describing what they want to build in natural language.
-
-[Open the live app](https://zopair.github.io/EasyHub-/) · [Browse the source](https://github.com/zopair/EasyHub-) · [Report a bug](https://github.com/zopair/EasyHub-/issues/new)
-
-## Product demo
-
-The banner at the top links directly to the 10-second demonstration. If the thumbnail is unavailable, use the direct video link: [Watch on Google Drive](https://drive.google.com/file/d/1eN8eEoHBHwwY8Dh1xnrOwArp0Z1Y0HRb/view). Ensure the Drive file is shared with the intended reviewers.
+The demo is hosted externally on Google Drive. Reviewers can use the direct video link if the thumbnail is unavailable.
 
 ## Why EasyHub?
 
-Finding a useful open-source project can be harder than writing the first line of code. Search terms may not match the way a developer describes a goal. EasyHub aims to make discovery more approachable by translating intent into a GitHub repository search and ranking the returned results with a lightweight relevance heuristic.
+Finding a useful open-source project can be harder than writing the first line of code. Search terms may not match the way a developer describes a goal. EasyHub makes discovery more approachable by translating intent into a GitHub repository search and ranking the returned results with a lightweight relevance heuristic.
 
 ### Current capabilities
 
@@ -35,7 +46,6 @@ Finding a useful open-source project can be harder than writing the first line o
 - **Quick repository previews:** open a lightweight, accessible dialog with the available description, language, license, stars, update date, relevance estimate, and topics. Preview uses search-result metadata already in memory; it does not fetch or execute repository code.
 - **Arabic and English interface:** language switching covers the main interface, result filters, and repository preview.
 - **Local query caching:** successful search results are cached in the browser for 30 minutes, with bounded storage and in-flight request deduplication to reduce repeated GitHub API calls.
-- **Zero EasyHub server:** no project backend or database is required. Search requests go directly from the browser to GitHub, and recent query/result metadata may be stored in that browser's local or session storage for the cache lifetime. EasyHub does not receive the search through its own server.
 - **No automatic code execution:** repositories are linked for human review; EasyHub does not download, install, or run their code.
 
 ## How it works
@@ -70,12 +80,12 @@ EasyHub is a discovery aid, not a code execution environment, security scanner, 
 | Query cache | Browser memory plus bounded local/session storage, 30-minute TTL |
 | Result filters | Client-side license and topic filters on the returned shortlist |
 | Repository preview | Client-side metadata dialog; no additional request or code execution |
-| Hosting | GitHub Pages |
+| Hosting | GitHub Pages (or any compatible static host) |
 | CI and deployment | GitHub Actions workflow in `.github/workflows/validate.yml` |
-| Server / database | None |
+| Application server / database | None |
 | Runtime dependencies | No package installation or build step required for the current app |
 
-This deliberately small architecture keeps hosting and maintenance simple. A framework, backend, or build system should only be introduced when a concrete requirement justifies the added complexity.
+This deliberately small architecture avoids dependence on an EasyHub-operated server. Hosting still relies on the selected static hosting provider, and search availability relies on GitHub's API. A framework, backend, or build system should only be introduced when a concrete, documented requirement justifies the added complexity.
 
 ## Quick start
 
