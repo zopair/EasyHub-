@@ -179,3 +179,14 @@ Bug reports, accessibility improvements, better intent matching, localization fi
 ## License
 
 The EasyHub project code is released under the [MIT License](LICENSE). This license applies to this repository's code and does not relicense third-party repositories surfaced by search.
+
+
+## Proof of Concept & Enterprise Customization Readiness
+
+**Status: Working static discovery PoC.** The browser-only search and metadata preview flow is implemented and deployed through GitHub Pages. It is not an autonomous coding agent, security scanner, repository installer, or legal license assessor. GitHub API availability/rate limits and the accuracy of upstream metadata remain external dependencies. Enterprise customization should preserve the no-backend/privacy-by-architecture model unless a documented requirement justifies a server-side component.
+
+## Intellectual Property & Authorship
+
+Project authorship and attribution: **Aly Hussein Zopair (علي حسين زبير ALY HUSSEIN ZOPAIR)**.
+
+The repository's MIT license applies to EasyHub project code only. It does not transfer ownership of, or relicense, third-party repositories, dependencies, metadata, or assets returned by GitHub search.
